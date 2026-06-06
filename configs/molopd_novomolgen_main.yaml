@@ -1,0 +1,64 @@
+model:
+  student_model_name_or_path: chandar-lab/NovoMolGen_32M_SMILES_AtomWise
+  base_retention_model_name_or_path: chandar-lab/NovoMolGen_32M_SMILES_AtomWise
+  tokenizer_name_or_path: chandar-lab/NovoMolGen_32M_SMILES_AtomWise
+  use_lora_for_student: true
+  trust_remote_code: false
+  student_lora:
+    r: 8
+    alpha: 16
+    dropout: 0.05
+
+teachers:
+  fda_adapter_path: pretrained_mol/teachers/fda_lora
+  target_adapters:
+    - name: target1
+      adapter_path: pretrained_mol/teachers/target1_lora
+      weight: 1.0
+    - name: target2
+      adapter_path: pretrained_mol/teachers/target2_lora
+      weight: 1.0
+
+loss:
+  lambda_fda: 0.5
+  lambda_base: 0.1
+  lambda_targets:
+    target1: 1.0
+    target2: 1.0
+  base_kl_direction: student_to_base
+  lambda_nll: 0.0
+  use_sequence_reward: false
+
+sampling:
+  prompt: "C"
+  num_samples_per_step: 64
+  max_new_tokens: 128
+  temperature: 1.0
+  top_p: 0.95
+  top_k: 50
+  keep_duplicates: false
+  max_length: 256
+
+training:
+  max_steps: 10000
+  lr: 1e-5
+  weight_decay: 0.0
+  gradient_clip_val: 1.0
+  accumulate_grad_batches: 1
+  precision: bf16-mixed
+  accelerator: gpu
+  devices: 1
+  log_every_n_steps: 10
+  save_every_n_steps: 500
+  sample_log_every_n_steps: 1
+
+logging:
+  use_wandb: true
+  project: MolOPD
+  run_name: novomolgen_molopd_main
+  output_dir: outputs/molopd_main
+
+evaluators:
+  use_rdkit_eval_for_logging: true
+  use_admet: false
+  use_fda_likeness_classifier: false
