@@ -1,0 +1,3 @@
+ProteinOPD-main
+infer/pretrained_mol/NovoMolGen_32M_SMILES_AtomWise/*
+infer/pretrained_mol/NovoMolGen_300M_SMILES_AtomWise/*
