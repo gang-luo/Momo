@@ -1,0 +1,85 @@
+task: target_teacher
+
+teacher:
+  target_name: target1
+  description: Single-target active-molecule LoRA teacher
+
+data:
+  train_path: data/target1_train.jsonl
+  val_path: data/target1_val.jsonl
+  test_path: data/target1_test.jsonl
+  smiles_fields: [smiles, SMILES, canonical_smiles, generated_smiles]
+  canonicalize: true
+  drop_invalid: true
+  deduplicate: true
+  sample_size: null
+  max_length: 256
+  batch_size: 8
+  num_workers: 4
+
+model:
+  base_model_name_or_path: chandar-lab/NovoMolGen_32M_SMILES_AtomWise
+  tokenizer_name_or_path: chandar-lab/NovoMolGen_32M_SMILES_AtomWise
+  output_adapter_dir: pretrained_mol/teachers/target1_lora
+  trust_remote_code: false
+  torch_dtype: null
+
+lora:
+  r: 16
+  alpha: 32
+  dropout: 0.05
+  bias: none
+  target_modules: null
+
+loss:
+  label_pad_token_id: -100
+
+optimizer:
+  name: adamw
+  lr: 2.0e-4
+  weight_decay: 0.0
+  betas: [0.9, 0.999]
+  eps: 1.0e-8
+  grad_clip: 1.0
+
+scheduler:
+  name: cosine
+  t_max: 1000
+  eta_min: 1.0e-6
+
+trainer:
+  max_epochs: 3
+  max_steps: null
+  precision: bf16-mixed
+  accelerator: gpu
+  devices: 1
+  strategy: auto
+  ddp_static_graph: false
+  ddp_find_unused_parameters: true
+  log_every_n_steps: 10
+  accumulate_grad_batches: 4
+  num_sanity_val_steps: 0
+  gradient_clip_val: 1.0
+  check_val_every_n_epoch: 1
+
+checkpoint:
+  monitor: val/loss
+  mode: min
+  save_top_k: 1
+  save_last: true
+  filename: best-target1-{epoch:02d}-{step}
+  log_lr: true
+
+logging:
+  use_wandb: true
+  project: MolOPD
+  run_name: target1_teacher_lora
+  entity: null
+  api_key: ""
+  log_model: false
+
+runtime:
+  output_dir: outputs/target1_teacher_lora
+  seed: 56
+  resume: false
+  run_test: true

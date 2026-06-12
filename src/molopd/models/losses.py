@@ -2,6 +2,8 @@ from __future__ import annotations
 import torch
 import torch.nn.functional as F
 
+from molopd.opd.losses import masked_token_kl, multi_teacher_opd_loss
+
 
 def jsd_from_logits(student_logits: torch.Tensor, teacher_logits: torch.Tensor, temperature: float = 1.0) -> torch.Tensor:
     s = F.log_softmax(student_logits / temperature, dim=-1)
@@ -9,8 +11,8 @@ def jsd_from_logits(student_logits: torch.Tensor, teacher_logits: torch.Tensor, 
     sp = s.exp()
     tp = t.exp()
     m = 0.5 * (sp + tp)
-    kl_sm = F.kl_div(s, m, reduction="none").sum(-1)
-    kl_tm = F.kl_div(t, m, reduction="none").sum(-1)
+    kl_sm = (sp * (s - torch.log(m.clamp_min(1e-12)))).sum(-1)
+    kl_tm = (tp * (t - torch.log(m.clamp_min(1e-12)))).sum(-1)
     return 0.5 * (kl_sm + kl_tm)
 
 
