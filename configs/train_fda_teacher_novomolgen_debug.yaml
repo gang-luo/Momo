@@ -1,0 +1,26 @@
+base_model_name_or_path: infer/pretrained_mol/NovoMolGen_32M_SMILES_AtomWise
+tokenizer_name_or_path: infer/pretrained_mol/NovoMolGen_32M_SMILES_AtomWise
+data_path: data/ZINC/fda.json
+val_data_path: data/ZINC/val/fda.json
+output_adapter_dir: infer/teachers/fda_lora
+max_length: 256
+sample_size: null
+seed: 56
+use_wandb: true
+run_name: fda_teacher_lora
+lora:
+  r: 16
+  alpha: 32
+  dropout: 0.05
+  target_modules: null
+training:
+  batch_size: 8
+  gradient_accumulation_steps: 4
+  lr: 2e-4
+  weight_decay: 0.0
+  num_train_epochs: 3
+  max_steps: -1
+  logging_steps: 10
+  save_steps: 500
+  eval_steps: 500
+  bf16: true
